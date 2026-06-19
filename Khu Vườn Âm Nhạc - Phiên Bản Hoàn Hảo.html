@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!-- saved from url=(0230)file:///D:/N%C4%82M%20H%E1%BB%8CC%2025-26/chuyen%20de%20truong/tr%C3%B2%20ch%C6%A1i%20%C3%A2m%20nh%E1%BA%A1c%20chuy%C3%AAn%20%C4%91%E1%BB%81%20tr%C6%B0%E1%BB%9Dng%20m%E1%BA%B9%20%C6%A1i%20t%E1%BA%A1i%20sao/trochoi%20moi/index.html -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khu Vườn Âm Nhạc - Phiên Bản Hoàn Hảo</title>
+    <link href="./Khu Vườn Âm Nhạc - Phiên Bản Hoàn Hảo_files/css2" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FF69B4; /* Hồng */
+            --secondary: #FFD700; /* Vàng */
+            --bg: #E6E6FA; /* Tím nhạt */
+            --success: #2ed573; /* Xanh lá */
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            /* --- CÀI ĐẶT HÌNH NỀN TẠI ĐÂY --- */
+            background: url('background.jpg') no-repeat center center fixed; 
+            background-size: cover; 
+            background-color: #87CEEB; 
+            
+            margin: 0; padding: 20px; text-align: center; color: #444; 
+            min-height: 100vh;
+        }
+
+        h1 { 
+            color: var(--primary); 
+            font-size: 3rem; 
+            margin-bottom: 5px;
+            text-shadow: 3px 3px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+        }
+
+        /* Thêm style cho tên người thực hiện */
+        .author-tag {
+            font-size: 1.2rem;
+            color: #555;
+            background: rgba(255, 255, 255, 0.7);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+            
+        .music-toggle {
+            position: absolute; top: 10px; right: 10px;
+            background: #fff; border: 2px solid var(--primary);
+            border-radius: 20px; padding: 5px 15px; cursor: pointer;
+            font-weight: bold; color: var(--primary);
+        }
+
+        .container {
+            display: flex; gap: 20px; max-width: 1100px; margin: 20px auto;
+            flex-wrap: wrap; justify-content: center; align-items: flex-start;
+        }
+
+        /* --- BẢNG ĐIỂM --- */
+        .scoreboard {
+            flex: 1; min-width: 280px; background: white; padding: 20px;
+            border-radius: 20px; border: 5px solid var(--secondary);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .team-row {
+            text-align: left; margin-bottom: 15px; padding: 10px;
+            background: #FFF0F5; border-radius: 10px;
+        }
+        .team-name { font-size: 1.3rem; font-weight: bold; display: block; margin-bottom: 5px; }
+        .flower-garden {
+            min-height: 40px; background: #fff; border: 2px dashed #ffb7b2;
+            border-radius: 8px; padding: 5px; font-size: 1.5rem; letter-spacing: 5px;
+        }
+
+        /* --- LƯỚI NỐT NHẠC --- */
+        .game-grid {
+            flex: 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+        }
+        .note-card {
+            background: linear-gradient(45deg, #FF9A9E, #FECFEF);
+            border: none; border-radius: 15px; padding: 30px 10px;
+            font-size: 1.2rem; font-weight: bold; color: white; cursor: pointer;
+            box-shadow: 0 5px #d68589; transition: transform 0.1s;
+        }
+        .note-card:active { transform: translateY(4px); box-shadow: 0 1px #d68589; }
+        .note-card.disabled { background: #95a5a6; cursor: default; transform: none; opacity: 0.8; box-shadow: none; }
+        
+        .n1 { background: #FF6B6B; } .n2 { background: #4ECDC4; } .n3 { background: #45B7D1; }
+        .n4 { background: #FFA502; } .n5 { background: #A3CB38; } .n6 { background: #6c5ce7; }
+
+        #modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 99;
+        }
+        #game-popup {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 30px; width: 90%; max-width: 500px;
+            border-radius: 20px; z-index: 100; border: 5px solid var(--primary);
+            box-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+
+        #timer { font-size: 80px; color: #FF4500; margin: 10px 0; font-weight: bold; }
+        #question-phase, #answer-phase, #fullsong-phase { display: none; }
+        #answer-text { color: var(--success); font-size: 26px; font-weight: bold; margin: 20px 0; }
+
+        .btn-team-select {
+            display: block; width: 100%; margin: 8px 0; padding: 12px;
+            border: none; border-radius: 10px; font-size: 16px; cursor: pointer; color: white;
+            font-weight: bold;
+        }
+        .btn-s { background: #FF6B6B; } .btn-g { background: #FFA502; } .btn-t { background: #45B7D1; } .btn-x { background: #95a5a6; }
+
+        .control-btn {
+            background: #2f3542; color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px;
+        }
+
+        .disk-spin {
+            font-size: 80px; margin: 20px 0;
+            animation: spin 3s linear infinite; display: inline-block;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <button class="music-toggle" onclick="toggleBgMusic()">🎵 Nhạc nền: Tắt/Bật</button>
+
+    <h1>🌻 NHỮNG NỐT NHẠC VUI 🌻</h1>
+    
+    <div class="author-tag">Người thực hiện: Nguyễn Trần Thị Thanh Vân</div>
+
+    <div class="container">
+        <div class="scoreboard">
+            <h2>🏆 BẢNG TÍCH HOA</h2>
+            <div class="team-row"><span class="team-name">🐿️ Đội Sóc Nhỏ</span><div id="garden-1" class="flower-garden"></div></div>
+            <div class="team-row"><span class="team-name">🐻 Đội Gấu Nâu</span><div id="garden-2" class="flower-garden"></div></div>
+            <div class="team-row"><span class="team-name">🐰 Đội Thỏ Trắng</span><div id="garden-3" class="flower-garden"></div></div>
+        </div>
+
+        <div class="game-grid">
+            <button class="note-card n1" onclick="playGame(1, this)" data-song="Con Cào Cào">Nốt 1 🎹</button>
+            <button class="note-card n2" onclick="playGame(2, this)" data-song="Mẹ Ơi Tại Sao">Nốt 2 🎸</button>
+            <button class="note-card n3" onclick="playGame(3, this)" data-song="Bông Hồng Tặng Cô">Nốt 3 🎻</button>
+            <button class="note-card n4" onclick="playGame(4, this)" data-song="Chú Ếch Con">Nốt 4 🎺</button>
+            <button class="note-card n5" onclick="playGame(5, this)" data-song="Lý Cây Bông">Nốt 5 🎷</button>
+            <button class="note-card n6" onclick="playGame(6, this)" data-song="Nhà Mình Rất Vui">Nốt 6 🥁</button>
+        </div>
+    </div>
+
+    <div id="modal-overlay"></div>
+    <div id="game-popup">
+        <h2 id="popup-title">Đang phát nhạc... 🎶</h2>
+        <div id="question-phase">
+            <div id="timer">15</div>
+            <div>
+                <button class="control-btn" style="background: #2ed573;" onclick="showAnswer()">🔓 Mở Đáp Án</button>
+                <button class="control-btn" style="background: #ff4757;" onclick="closeAll()">❌ Đóng</button>
+            </div>
+        </div>
+        <div id="answer-phase">
+            <div style="font-size: 18px;">Bài hát là:</div>
+            <div id="answer-text">...</div>
+            <p style="font-weight: bold; color: #ff6b6b;">Đội nào đoán đúng?</p>
+            <button class="btn-team-select btn-s" onclick="addFlowerAndPlayFull(1)">🐿️ Đội Sóc Nhỏ (+1 Hoa)</button>
+            <button class="btn-team-select btn-g" onclick="addFlowerAndPlayFull(2)">🐻 Đội Gấu Nâu (+1 Hoa)</button>
+            <button class="btn-team-select btn-t" onclick="addFlowerAndPlayFull(3)">🐰 Đội Thỏ Trắng (+1 Hoa)</button>
+            <button class="btn-team-select btn-x" onclick="closeAll()">🙅 Không ai đúng (Thoát)</button>
+        </div>
+        <div id="fullsong-phase">
+            <div class="disk-spin">📀</div>
+            <p style="font-size: 18px; color: #555;">Đang phát bài hát đầy đủ...</p>
+            <h3 id="full-song-name" style="color: var(--primary);"></h3>
+            <button class="control-btn" style="background: #ff4757; margin-top: 20px;" onclick="closeAll()">⏹️ Dừng Nhạc &amp; Về Màn Hình Chính</button>
+        </div>
+    </div>
+
+    <audio id="snippetAudio"></audio> 
+    <audio id="fullAudio"></audio>    
+    <audio id="bgMusic" src="nhacnen.mp3" loop=""></audio> 
+
+    <script>
+        let timerInterval;
+        let snippetAudio = document.getElementById('snippetAudio');
+        let fullAudio = document.getElementById('fullAudio');
+        let bgMusic = document.getElementById('bgMusic');
+        let currentBtn = null;
+        let currentNoteId = 0;
+
+        bgMusic.volume = 0.2; 
+        snippetAudio.volume = 1.0;
+        fullAudio.volume = 1.0;
+
+        function toggleBgMusic() {
+            if (bgMusic.paused) bgMusic.play().catch(e => alert("Hãy bấm vào trang web trước!"));
+            else bgMusic.pause();
+        }
+
+        function playGame(id, btn) {
+            bgMusic.volume = 0.05;
+            currentBtn = btn;
+            currentNoteId = id;
+            showPopupPhase('question');
+            document.getElementById('popup-title').innerText = "Lắng nghe nhé... 👂";
+            document.getElementById('timer').innerText = "15";
+            snippetAudio.src = `note${id}.mp3`;
+            snippetAudio.play().catch(e => alert(`Thiếu file note${id}.mp3`));
+            let timeLeft = 15;
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer').innerText = "Hết Giờ!";
+                    snippetAudio.pause();
+                    bgMusic.volume = 0.2;
+                }
+            }, 1000);
+        }
+
+        function showAnswer() {
+            clearInterval(timerInterval);
+            snippetAudio.pause();
+            let songName = currentBtn.getAttribute('data-song');
+            document.getElementById('popup-title').innerText = "🎉 KẾT QUẢ 🎉";
+            document.getElementById('answer-text').innerText = songName;
+            showPopupPhase('answer');
+        }
+
+        function addFlowerAndPlayFull(teamId) {
+            let garden = document.getElementById(`garden-${teamId}`);
+            garden.innerHTML += "🌻 ";
+            if (currentBtn) {
+                currentBtn.classList.add('disabled');
+                currentBtn.onclick = null;
+                currentBtn.innerHTML = "✅ Xong";
+            }
+            playFullSong();
+        }
+
+        function playFullSong() {
+            bgMusic.pause();
+            let songName = currentBtn.getAttribute('data-song');
+            document.getElementById('popup-title').innerText = "🎶 THƯỞNG THỨC 🎶";
+            document.getElementById('full-song-name').innerText = songName;
+            showPopupPhase('fullsong');
+            fullAudio.src = `full${currentNoteId}.mp3`;
+            fullAudio.play().catch(e => {
+                alert(`Chưa có file full${currentNoteId}.mp3! Đang quay về màn hình chính.`);
+                closeAll();
+            });
+            fullAudio.onended = function() { closeAll(); };
+        }
+
+        function showPopupPhase(phaseId) {
+            document.getElementById('modal-overlay').style.display = 'block';
+            document.getElementById('game-popup').style.display = 'block';
+            document.getElementById('question-phase').style.display = 'none';
+            document.getElementById('answer-phase').style.display = 'none';
+            document.getElementById('fullsong-phase').style.display = 'none';
+            document.getElementById(phaseId + '-phase').style.display = 'block';
+        }
+
+        function closeAll() {
+            clearInterval(timerInterval);
+            snippetAudio.pause();
+            fullAudio.pause();
+            bgMusic.volume = 0.2;
+            if (!bgMusic.paused || bgMusic.currentTime > 0) {
+                 bgMusic.play().catch(()=>{});
+            }
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.getElementById('game-popup').style.display = 'none';
+        }
+    </script>
+
+</body></html>

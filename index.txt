@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Âm Nhạc: Đoán Tên Bài Hát</title>
+    <style>
+        /* --- PHẦN GIAO DIỆN (CSS) --- */
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', sans-serif; /* Font chữ vui nhộn */
+            background-color: #FFF5E1; /* Màu nền kem nhẹ */
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #FF5722;
+            text-shadow: 2px 2px #FFCCBC;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sub-title {
+            color: #555;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Khung chứa các nốt nhạc */
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 cột */
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Thiết kế nút Nốt nhạc */
+        .note-card {
+            border: none;
+            border-radius: 20px;
+            padding: 40px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Màu sắc từng nốt cho sinh động */
+        .note-1 { background: linear-gradient(135deg, #FF6B6B, #EE5253); }
+        .note-2 { background: linear-gradient(135deg, #FF9F43, #F368E0); }
+        .note-3 { background: linear-gradient(135deg, #FECA57, #FF9F43); }
+        .note-4 { background: linear-gradient(135deg, #48DBFB, #0ABDE3); }
+        .note-5 { background: linear-gradient(135deg, #1DD1A1, #10AC84); }
+        .note-6 { background: linear-gradient(135deg, #5F27CD, #341F97); }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px rgba(0,0,0,0.3);
+        }
+        
+        .note-card:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px rgba(0,0,0,0.2);
+        }
+
+        /* Trạng thái khi đang phát hoặc đã chơi xong */
+        .playing { border: 4px solid #FFF; animation: pulse 1s infinite; }
+        .disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.6; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+        }
+
+        /* --- KHUNG ĐIỀU KHIỂN TRÒ CHƠI --- */
+        #game-control {
+            display: none; /* Ẩn mặc định */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            width: 80%;
+            max-width: 500px;
+            z-index: 100;
+            border: 5px solid #FF9F43;
+        }
+
+        /* Lớp nền mờ khi hiện popup */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 99;
+        }
+
+        #timer-display {
+            font-size: 80px;
+            font-weight: bold;
+            color: #FF5252;
+            margin: 10px 0;
+        }
+
+        .btn-action {
+            padding: 12px 25px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        .btn-answer { background-color: #48DBFB; color: #333; }
+        .btn-close { background-color: #FF6B6B; color: white; }
+        
+        #answer-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f2f6;
+            border-radius: 10px;
+            display: none;
+            color: #2f3542;
+        }
+        
+        #answer-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2ed573;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>🎵 TRÒ CHƠI ÂM NHẠC 🎵</h1>
+    <p class="sub-title">Bấm vào nốt nhạc - Nghe trong 15 giây - Đoán tên bài hát!</p>
+
+    <div class="music-grid">
+        <button class="note-card note-1" onclick="startGame(1, this)" data-answer="Tên Bài Hát 1">
+            Nốt Nhạc 1 🎹
+        </button>
+        <button class="note-card note-2" onclick="startGame(2, this)" data-answer="Tên Bài Hát 2">
+            Nốt Nhạc 2 🎸
+        </button>
+        <button class="note-card note-3" onclick="startGame(3, this)" data-answer="Tên Bài Hát 3">
+            Nốt Nhạc 3 🎻
+        </button>
+        <button class="note-card note-4" onclick="startGame(4, this)" data-answer="Tên Bài Hát 4">
+            Nốt Nhạc 4 🎺
+        </button>
+        <button class="note-card note-5" onclick="startGame(5, this)" data-answer="Tên Bài Hát 5">
+            Nốt Nhạc 5 🎷
+        </button>
+        <button class="note-card note-6" onclick="startGame(6, this)" data-answer="Tên Bài Hát 6">
+            Nốt Nhạc 6 🥁
+        </button>
+    </div>
+
+    <audio id="mainAudio"></audio>
+
+    <div id="overlay"></div>
+    <div id="game-control">
+        <h2 id="status-msg">Đang phát nhạc... 🎶</h2>
+        <div id="timer-display">15</div>
+        
+        <div id="controls">
+            <button class="btn-action btn-answer" onclick="revealAnswer()">Mở Đáp Án</button>
+            <button class="btn-action btn-close" onclick="closeGame()">Đóng / Nốt Khác</button>
+        </div>
+
+        <div id="answer-box">
+            <div>Đáp án chính xác là:</div>
+            <div id="answer-text"></div>
+        </div>
+    </div>
+
+    <script>
+        let audio = document.getElementById('mainAudio');
+        let timerDisplay = document.getElementById('timer-display');
+        let overlay = document.getElementById('overlay');
+        let gameControl = document.getElementById('game-control');
+        let answerBox = document.getElementById('answer-box');
+        let answerText = document.getElementById('answer-text');
+        let statusMsg = document.getElementById('status-msg');
+        
+        let countdown;
+        let timeLeft = 15;
+        let currentButton = null; // Nút hiện tại đang bấm
+        let currentAnswer = "";   // Đáp án hiện tại
+
+        function startGame(noteId, btn) {
+            // 1. Thiết lập giao diện
+            currentButton = btn;
+            currentAnswer = btn.getAttribute('data-answer');
+            
+            overlay.style.display = 'block';
+            gameControl.style.display = 'block';
+            answerBox.style.display = 'none';
+            statusMsg.innerText = "Đang phát nhạc... 🎶";
+            btn.classList.add('playing'); // Hiệu ứng rung
+
+            // 2. Phát nhạc
+            audio.src = `note${noteId}.mp3`;
+            audio.play().catch(error => {
+                alert("Lỗi: Không tìm thấy file note" + noteId + ".mp3");
+                closeGame();
+            });
+
+            // 3. Chạy đồng hồ
+            timeLeft = 15;
+            timerDisplay.innerText = timeLeft;
+            
+            clearInterval(countdown); // Xóa đồng hồ cũ nếu có
+            countdown = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    timeOut();
+                }
+            }, 1000);
+        }
+
+        function timeOut() {
+            clearInterval(countdown);
+            audio.pause(); // Dừng nhạc
+            timerDisplay.innerText = "Hết giờ!";
+            statusMsg.innerText = "⏰ Đã hết thời gian suy nghĩ!";
+            currentButton.classList.remove('playing');
+        }
+
+        function revealAnswer() {
+            clearInterval(countdown);
+            audio.pause(); // Dừng nhạc nếu chưa hết giờ
+            audio.currentTime = 0; 
+            
+            statusMsg.innerText = "🎉 Kết Quả 🎉";
+            answerText.innerText = currentAnswer;
+            answerBox.style.display = 'block';
+            currentButton.classList.remove('playing');
+            
+            // Đánh dấu nút đã chơi xong (làm mờ)
+            currentButton.classList.add('disabled');
+            currentButton.onclick = null; // Không cho bấm lại
+        }
+
+        function closeGame() {
+            clearInterval(countdown);
+            audio.pause();
+            audio.currentTime = 0;
+            
+            overlay.style.display = 'none';
+            gameControl.style.display = 'none';
+            if(currentButton) currentButton.classList.remove('playing');
+        }
+    </script>
+
+</body>
+</html>
